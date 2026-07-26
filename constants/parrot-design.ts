@@ -25,6 +25,8 @@ export const ParrotColors = {
   disabled: '#E1E1E1',
   disabledLabel: '#898A8D',
   focusBorder: '#2C92FF',
+  /** Not in the Figma file — needed for verification failure messages. */
+  error: '#D93025',
 } as const;
 
 export const ParrotFonts = {

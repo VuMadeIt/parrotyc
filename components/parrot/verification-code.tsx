@@ -86,15 +86,33 @@ export function ResendCodeLink({ onPress }: { onPress?: () => void }) {
   );
 }
 
-export function CodeResentNotice() {
+/**
+ * Occupies the Figma "a new code has been sent" slot, reused for verification
+ * errors so status copy never shifts the artboard layout.
+ */
+export function CodeStatusNotice({
+  message,
+  tone = 'success',
+}: {
+  message: string;
+  tone?: 'success' | 'error';
+}) {
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="none">
-      <Image
-        source={require('@/assets/images/parrot/success-check.png')}
-        style={styles.successIcon}
-        contentFit="contain"
-      />
-      <Text style={styles.successLabel}>A new code has been sent to you. </Text>
+      {tone === 'success' ? (
+        <Image
+          source={require('@/assets/images/parrot/success-check.png')}
+          style={styles.successIcon}
+          contentFit="contain"
+        />
+      ) : null}
+      <Text
+        style={[
+          styles.successLabel,
+          tone === 'error' ? styles.errorLabel : null,
+        ]}>
+        {message}
+      </Text>
     </View>
   );
 }
@@ -166,5 +184,10 @@ const styles = StyleSheet.create({
     lineHeight: lineHeightFor(24),
     letterSpacing: -0.768,
     color: ParrotColors.title,
+  },
+  errorLabel: {
+    left: 55,
+    width: 700,
+    color: ParrotColors.error,
   },
 });
