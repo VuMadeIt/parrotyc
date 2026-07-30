@@ -49,9 +49,12 @@ function describeSendError(error: unknown): string {
     if (error.status === 429) {
       return 'Too many requests. Please wait a moment.';
     }
-    if (error.status === 0) return 'No connection. Check your network and try again.';
+    if (error.status === 0) {
+      return 'No connection to the verification server. Check that parrot-backend is running and tunneled, then try again.';
+    }
     if (error.status === 422) return 'That phone number looks invalid.';
-    return 'We couldn’t send a code right now. Please try again.';
+    if (error.status === 502) return 'We couldn’t deliver the code over iMessage. Please try again.';
+    return error.message || 'We couldn’t send a code right now. Please try again.';
   }
   return 'We couldn’t send a code right now. Please try again.';
 }
@@ -173,16 +176,16 @@ export default function VerifyPhoneNumberScreen() {
   };
 
   const handleResend = async () => {
-    if (!phone || resending) return;
+    if (!phone || resending || verifying) return;
     if (cooldownSeconds > 0) {
-      // Refresh the live wait message if they tap again mid-cooldown.
-      setNotice(null);
+      // Force the live wait message to show even if another notice is up.
+      setNotice({ message: cooldownMessage(cooldownSeconds), tone: 'error' });
       void Haptics.selectionAsync();
       return;
     }
     void Haptics.selectionAsync();
     setResending(true);
-    setNotice(null);
+    setNotice({ message: 'Sending a new code…', tone: 'success' });
     try {
       const result = await resendVerificationCode(phone);
       setNotice({ message: 'A new code has been sent to you. ', tone: 'success' });
@@ -194,7 +197,10 @@ export default function VerifyPhoneNumberScreen() {
     } catch (error) {
       if (error instanceof ApiError && error.status === 429) {
         startCooldown(error.retryAfter ?? 30);
-        setNotice(null);
+        setNotice({
+          message: cooldownMessage(error.retryAfter ?? 30),
+          tone: 'error',
+        });
       } else {
         setNotice({ message: describeSendError(error), tone: 'error' });
       }

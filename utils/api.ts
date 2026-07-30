@@ -41,16 +41,26 @@ export async function postJson<T>(path: string, body: unknown): Promise<T> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
+  // localtunnel serves an interstitial unless this header is present.
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'Bypass-Tunnel-Reminder': 'true',
+  };
+
   let response: Response;
   try {
     response = await fetch(`${API_BASE_URL}${path}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify(body),
       signal: controller.signal,
     });
-  } catch {
-    throw new ApiError('Network request failed. Check your connection.', 0);
+  } catch (error) {
+    const detail =
+      error instanceof Error && error.name === 'AbortError'
+        ? `Request timed out talking to ${API_BASE_URL}.`
+        : `Network request failed talking to ${API_BASE_URL}.`;
+    throw new ApiError(detail, 0);
   } finally {
     clearTimeout(timeout);
   }
