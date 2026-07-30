@@ -27,6 +27,17 @@ export const ParrotColors = {
   focusBorder: '#2C92FF',
   /** Not in the Figma file — needed for verification failure messages. */
   error: '#D93025',
+  /** Selected state for option cards (language / proficiency). */
+  selectedBackground: '#EAF4FE',
+  cardBackground: '#FFFFFF',
+  cardShadow: '#0B1B2B',
+  /** "Coming soon" copy on locked options. */
+  mutedLabel: '#A9AFB8',
+  /** Unfilled segments of the proficiency level meter. */
+  meterTrack: '#C7DFFB',
+  /** Welcome screen sky — outside the onboarding artboard palette. */
+  welcomeBackground: '#BCE7F5',
+  welcomeCloud: '#FFFFFF',
 } as const;
 
 export const ParrotFonts = {

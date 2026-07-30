@@ -11,6 +11,8 @@ type ArtboardProps = {
   anchor?: 'top' | 'bottom';
   /** Extra Y offset when `anchor="top"` (typically safe-area compensated). */
   topOffset?: number;
+  /** Override the default off-white artboard fill (e.g. welcome sky). */
+  backgroundColor?: string;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -22,6 +24,7 @@ export function Artboard({
   children,
   anchor = 'bottom',
   topOffset = 0,
+  backgroundColor = ParrotColors.background,
   style,
 }: ArtboardProps) {
   const { width, height } = useWindowDimensions();
@@ -29,8 +32,14 @@ export function Artboard({
   const top = anchor === 'bottom' ? height - ParrotArtboard.height * scale : topOffset;
 
   return (
-    <View style={[styles.root, style]}>
-      <View style={[styles.canvas, { transform: [{ scale }], top }]}>{children}</View>
+    <View style={[styles.root, { backgroundColor }, style]}>
+      <View
+        style={[
+          styles.canvas,
+          { transform: [{ scale }], top, backgroundColor },
+        ]}>
+        {children}
+      </View>
     </View>
   );
 }
@@ -39,14 +48,12 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     overflow: 'hidden',
-    backgroundColor: ParrotColors.background,
   },
   canvas: {
     position: 'absolute',
     left: 0,
     width: ParrotArtboard.width,
     height: ParrotArtboard.height,
-    backgroundColor: ParrotColors.background,
     transformOrigin: 'top left',
   },
 });

@@ -22,6 +22,7 @@ import {
   ResendCodeLink,
   VerificationCodeInput,
 } from '@/components/parrot/verification-code';
+import { OnboardingProgress, OnboardingProgressFrom } from '@/constants/onboarding';
 import { ParrotArtboard, ParrotColors } from '@/constants/parrot-design';
 import {
   describeVerifyFailure,
@@ -222,7 +223,11 @@ export default function VerifyPhoneNumberScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <Artboard anchor="top" topOffset={topOffset}>
           <Pressable style={StyleSheet.absoluteFill} onPress={Keyboard.dismiss} />
-          <ProgressHeader onBack={() => router.back()} />
+          <ProgressHeader
+            progress={OnboardingProgress.verify}
+            from={OnboardingProgressFrom.verify}
+            onBack={() => router.back()}
+          />
           <TitleBlock
             title="Integrate Polly into your iMessages "
             subtitle={`Enter the verification code sent to you at \n${phoneLabel}.`}

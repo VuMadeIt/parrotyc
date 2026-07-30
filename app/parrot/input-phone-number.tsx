@@ -21,6 +21,7 @@ import { PhoneNumberField } from '@/components/parrot/phone-number-field';
 import { ProgressHeader } from '@/components/parrot/progress-header';
 import { TitleBlock } from '@/components/parrot/title-block';
 import { DEFAULT_COUNTRY, findCountry, type Country } from '@/constants/countries';
+import { OnboardingProgress, OnboardingProgressFrom } from '@/constants/onboarding';
 import { ParrotArtboard, ParrotColors } from '@/constants/parrot-design';
 import {
   clampNationalDigits,
@@ -113,7 +114,11 @@ export default function InputPhoneNumberScreen() {
           {/* Behind content — dismisses keyboard without intercepting field/button presses */}
           <Pressable style={StyleSheet.absoluteFill} onPress={Keyboard.dismiss} />
 
-          <ProgressHeader onBack={() => router.back()} />
+          <ProgressHeader
+            progress={OnboardingProgress.phone}
+            from={OnboardingProgressFrom.phone}
+            onBack={() => router.back()}
+          />
           <TitleBlock
             title="Integrate Polly into your iMessages "
             subtitle="Enter your phone number for personalized conversations via iMessage!"

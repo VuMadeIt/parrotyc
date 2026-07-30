@@ -16,6 +16,7 @@ type ContinueButtonProps = {
   /** Absolute Figma artboard positioning (14:299 / 14:420). */
   left?: number;
   top?: number;
+  label?: string;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -30,6 +31,7 @@ export function ContinueButton({
   onPress,
   left,
   top,
+  label = 'Continue',
   style,
 }: ContinueButtonProps) {
   const progress = useSharedValue(enabled ? 1 : 0);
@@ -77,7 +79,7 @@ export function ContinueButton({
           fillStyle,
         ]}
       />
-      <Animated.Text style={[styles.label, labelStyle]}>Continue</Animated.Text>
+      <Animated.Text style={[styles.label, labelStyle]}>{label}</Animated.Text>
     </Pressable>
   );
 }

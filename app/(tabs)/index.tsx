@@ -65,10 +65,12 @@ export default function HomeScreen() {
         </ThemedText>
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
-        <Link href="/parrot/input-phone-number">
+        <Link href="/parrot/welcome">
           <ThemedText type="subtitle">Open the Polly onboarding flow</ThemedText>
         </Link>
-        <ThemedText>Phone number and verification screens built from the Parrot Figma file.</ThemedText>
+        <ThemedText>
+          Welcome → language → level → notifications → phone → OTP, wired to parrot-backend.
+        </ThemedText>
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
