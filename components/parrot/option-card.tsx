@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   levelLabel: {
     marginLeft: 32,
     flexShrink: 1,
-    fontFamily: ParrotFonts.bold,
+    fontFamily: ParrotFonts.semiBold,
     fontSize: 32,
     lineHeight: lineHeightFor(32),
     letterSpacing: -1.024,

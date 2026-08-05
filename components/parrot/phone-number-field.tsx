@@ -12,6 +12,8 @@ type PhoneNumberFieldProps = {
   onBlur: () => void;
   onChangeText: (text: string) => void;
   onPressCountry: () => void;
+  /** Replaces the field label — used for “enter a valid number” feedback. */
+  errorMessage?: string;
 };
 
 /**
@@ -20,19 +22,36 @@ type PhoneNumberFieldProps = {
  */
 export const PhoneNumberField = forwardRef<TextInput, PhoneNumberFieldProps>(
   function PhoneNumberField(
-    { country, value, focused, onFocus, onBlur, onChangeText, onPressCountry },
+    {
+      country,
+      value,
+      focused,
+      onFocus,
+      onBlur,
+      onChangeText,
+      onPressCountry,
+      errorMessage,
+    },
     ref
   ) {
+    const showError = Boolean(errorMessage);
+
     return (
       <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
-        <Text style={styles.label}>What&rsquo;s your phone number?</Text>
+        <Text style={[styles.label, showError ? styles.labelError : null]}>
+          {errorMessage ?? 'What\u2019s your phone number?'}
+        </Text>
 
         <View
           style={[
             styles.field,
             {
-              borderColor: focused ? ParrotColors.primary : ParrotColors.fieldBorder,
-              borderWidth: focused ? 2 : 1,
+              borderColor: showError
+                ? ParrotColors.error
+                : focused
+                  ? ParrotColors.primary
+                  : ParrotColors.fieldBorder,
+              borderWidth: focused || showError ? 2 : 1,
             },
           ]}>
           <Pressable
@@ -79,6 +98,9 @@ const styles = StyleSheet.create({
     lineHeight: lineHeightFor(24),
     letterSpacing: -0.768,
     color: ParrotColors.title,
+  },
+  labelError: {
+    color: ParrotColors.error,
   },
   field: {
     position: 'absolute',

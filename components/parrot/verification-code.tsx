@@ -1,6 +1,7 @@
 import { Image } from 'expo-image';
-import { forwardRef, useImperativeHandle, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import {
+  LayoutChangeEvent,
   Platform,
   Pressable,
   StyleSheet,
@@ -10,6 +11,14 @@ import {
 } from 'react-native';
 
 import { lineHeightFor, ParrotColors, ParrotFonts } from '@/constants/parrot-design';
+
+/** Figma slot for “a new code has been sent” — just above the OTP boxes. */
+const NOTICE_BASE_TOP = 663;
+const NOTICE_ICON_BASE_TOP = 668;
+const OTP_BOX_TOP = 710;
+const NOTICE_GAP_ABOVE_BOXES = 10;
+const NOTICE_LINE_HEIGHT = lineHeightFor(24);
+const NOTICE_TWO_LINES = NOTICE_LINE_HEIGHT * 2;
 
 const BOX_LEFTS = [52, 177, 302, 427, 552, 677];
 
@@ -88,7 +97,8 @@ export function ResendCodeLink({ onPress }: { onPress?: () => void }) {
 
 /**
  * Occupies the Figma "a new code has been sent" slot, reused for verification
- * errors so status copy never shifts the artboard layout.
+ * errors. Stays at the original position for up to two lines; taller copy lifts
+ * so it is not covered by the OTP boxes.
  */
 export function CodeStatusNotice({
   message,
@@ -97,18 +107,37 @@ export function CodeStatusNotice({
   message: string;
   tone?: 'success' | 'error';
 }) {
+  const [lift, setLift] = useState(0);
+
+  useEffect(() => {
+    setLift(0);
+  }, [message]);
+
+  const handleLabelLayout = (event: LayoutChangeEvent) => {
+    const height = event.nativeEvent.layout.height;
+    if (height <= NOTICE_TWO_LINES) {
+      setLift(0);
+      return;
+    }
+    // Keep the bottom of the text a small gap above the OTP boxes.
+    const overflow = NOTICE_BASE_TOP + height - (OTP_BOX_TOP - NOTICE_GAP_ABOVE_BOXES);
+    setLift(Math.max(0, overflow));
+  };
+
   return (
-    <View style={StyleSheet.absoluteFill} pointerEvents="none">
+    <View style={styles.noticeLayer} pointerEvents="none">
       {tone === 'success' ? (
         <Image
           source={require('@/assets/images/parrot/success-check.png')}
-          style={styles.successIcon}
+          style={[styles.successIcon, { top: NOTICE_ICON_BASE_TOP - lift }]}
           contentFit="contain"
         />
       ) : null}
       <Text
+        onLayout={handleLabelLayout}
         style={[
           styles.successLabel,
+          { top: NOTICE_BASE_TOP - lift },
           tone === 'error' ? styles.errorLabel : null,
         ]}>
         {message}
@@ -167,21 +196,23 @@ const styles = StyleSheet.create({
     color: ParrotColors.subtitle,
     textDecorationLine: 'underline',
   },
+  noticeLayer: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 4,
+  },
   successIcon: {
     position: 'absolute',
     left: 55,
-    top: 668,
     width: 20,
     height: 20,
   },
   successLabel: {
     position: 'absolute',
     left: 79,
-    top: 663,
     width: 376,
     fontFamily: ParrotFonts.semiBold,
     fontSize: 24,
-    lineHeight: lineHeightFor(24),
+    lineHeight: NOTICE_LINE_HEIGHT,
     letterSpacing: -0.768,
     color: ParrotColors.title,
   },

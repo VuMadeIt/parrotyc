@@ -13,6 +13,8 @@ import { lineHeightFor, ParrotColors, ParrotFonts } from '@/constants/parrot-des
 type ContinueButtonProps = {
   enabled?: boolean;
   onPress?: () => void;
+  /** Fired when the user taps while the button is still grey/disabled. */
+  onDisabledPress?: () => void;
   /** Absolute Figma artboard positioning (14:299 / 14:420). */
   left?: number;
   top?: number;
@@ -29,6 +31,7 @@ type ContinueButtonProps = {
 export function ContinueButton({
   enabled = false,
   onPress,
+  onDisabledPress,
   left,
   top,
   label = 'Continue',
@@ -59,12 +62,20 @@ export function ContinueButton({
     ),
   }));
 
+  const canPressDisabled = Boolean(onDisabledPress);
+
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ disabled: !enabled }}
-      disabled={!enabled}
-      onPress={enabled ? onPress : undefined}
+      disabled={!enabled && !canPressDisabled}
+      onPress={() => {
+        if (enabled) {
+          onPress?.();
+          return;
+        }
+        onDisabledPress?.();
+      }}
       style={[
         styles.hit,
         left !== undefined && top !== undefined ? { position: 'absolute', left, top } : null,

@@ -27,6 +27,7 @@ import {
   clampNationalDigits,
   extractDigits,
   formatNationalNumber,
+  isPhoneLengthComplete,
   isPhoneValid,
   sanitizePhoneInput,
   toE164,
@@ -47,6 +48,12 @@ export default function InputPhoneNumberScreen() {
   const [pickerOpen, setPickerOpen] = useState(false);
 
   const isValid = useMemo(() => isPhoneValid(phone, country.iso2), [phone, country.iso2]);
+  // Red label ONLY at this country's max digit count (never mid-entry).
+  const isAtMaxLength = useMemo(
+    () => isPhoneLengthComplete(phone, country.iso2),
+    [phone, country.iso2]
+  );
+  const showInvalidMessage = isAtMaxLength && !isValid;
 
   useEffect(() => {
     if (isValid && !wasValidRef.current) {
@@ -105,6 +112,15 @@ export default function InputPhoneNumberScreen() {
     });
   };
 
+  const handleDisabledContinue = () => {
+    // Only surface the invalid label once they've hit this country's max length.
+    if (isAtMaxLength && !isValid) {
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    } else {
+      void Haptics.selectionAsync();
+    }
+  };
+
   return (
     <View style={styles.root}>
       <KeyboardAvoidingView
@@ -130,6 +146,9 @@ export default function InputPhoneNumberScreen() {
             country={country}
             value={phone}
             focused={focused}
+            errorMessage={
+              showInvalidMessage ? 'Please enter a valid phone number' : undefined
+            }
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
             onChangeText={handleChangeText}
@@ -138,7 +157,13 @@ export default function InputPhoneNumberScreen() {
               setPickerOpen(true);
             }}
           />
-          <ContinueButton left={32} top={959} enabled={isValid} onPress={handleContinue} />
+          <ContinueButton
+            left={32}
+            top={959}
+            enabled={isValid}
+            onPress={handleContinue}
+            onDisabledPress={handleDisabledContinue}
+          />
         </Artboard>
       </KeyboardAvoidingView>
 

@@ -40,7 +40,7 @@ export default function EnableNotificationsScreen() {
 
     const run = async () => {
       // Give the title a beat to paint before the system sheet covers it.
-      await new Promise((resolve) => setTimeout(resolve, 450));
+      await new Promise((resolve) => setTimeout(resolve, 600));
       if (!active) return;
 
       let status: Notifications.PermissionStatus =
@@ -48,12 +48,21 @@ export default function EnableNotificationsScreen() {
       try {
         const existing = await Notifications.getPermissionsAsync();
         status = existing.status;
-        if (existing.status !== 'granted') {
+
+        // iOS only shows the system alert while status is undetermined (first
+        // ask). After Allow/Don't Allow, the OS will not present it again —
+        // reset via Settings → Expo Go → Notifications to retest.
+        const shouldAsk =
+          status === Notifications.PermissionStatus.UNDETERMINED ||
+          (status !== Notifications.PermissionStatus.GRANTED && existing.canAskAgain);
+
+        if (shouldAsk) {
           const result = await Notifications.requestPermissionsAsync({
             ios: {
               allowAlert: true,
               allowBadge: true,
               allowSound: true,
+              allowDisplayInCarPlay: false,
             },
           });
           status = result.status;
@@ -72,7 +81,7 @@ export default function EnableNotificationsScreen() {
         level,
       });
 
-      if (status === 'granted') {
+      if (status === Notifications.PermissionStatus.GRANTED) {
         void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
 
