@@ -51,11 +51,13 @@ export default function WelcomeScreen() {
           Done with Duolingo?{'\n'}Start speaking real Español.
         </Text>
 
-        <View style={styles.ratingBadge}>
-          <Text style={styles.stars}>⭐⭐⭐⭐⭐</Text>
-          <Text style={styles.ratingScore}>4.9</Text>
-          <Text style={styles.ratingDot}>•</Text>
-          <Text style={styles.ratingLabel}>App Store Rating</Text>
+        <View style={styles.ratingBadgeWrap}>
+          <View style={styles.ratingBadge}>
+            <Text style={styles.stars}>⭐⭐⭐⭐⭐</Text>
+            <Text style={styles.ratingScore}>4.9</Text>
+            <Text style={styles.ratingDot}>•</Text>
+            <Text style={styles.ratingLabel}>App Store Rating</Text>
+          </View>
         </View>
 
         <ContinueButton
@@ -112,10 +114,14 @@ const styles = StyleSheet.create({
     letterSpacing: -1.4,
     color: ParrotColors.title,
   },
-  ratingBadge: {
+  ratingBadgeWrap: {
     position: 'absolute',
-    left: 140,
+    left: 0,
+    right: 0,
     top: 920,
+    alignItems: 'center',
+  },
+  ratingBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
