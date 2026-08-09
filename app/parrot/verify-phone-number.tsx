@@ -53,7 +53,12 @@ function describeSendError(error: unknown): string {
       return 'No connection to the verification server. Check that parrot-backend is running and tunneled, then try again.';
     }
     if (error.status === 422) return 'That phone number looks invalid.';
-    if (error.status === 502) return 'We couldn’t deliver the code over iMessage. Please try again.';
+    if (error.status === 502) {
+      return (
+        error.message ||
+        'We couldn’t deliver the code over iMessage. Please try again.'
+      );
+    }
     return error.message || 'We couldn’t send a code right now. Please try again.';
   }
   return 'We couldn’t send a code right now. Please try again.';
