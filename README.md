@@ -55,7 +55,10 @@ curl http://127.0.0.1:8000/verification/status
 
 ## 3. Tunnel the API (phone cannot use localhost)
 
-In a **second** terminal:
+**Required.** Without this, the app shows:
+“No connection to the verification server. Check that parrot-backend is running and tunneled…”
+
+In a **second** terminal (keep it open — if this process dies, verification breaks):
 
 ```bash
 npx --yes localtunnel --port 8000
@@ -68,7 +71,23 @@ Create `parrotyc/.env` (no trailing slash):
 EXPO_PUBLIC_API_URL=https://something.loca.lt
 ```
 
-Restart Expo with `--clear` whenever you change this value.
+**Verify the phone can reach the API through the tunnel** (do this every time before Expo):
+
+```bash
+# Windows
+curl -H "Bypass-Tunnel-Reminder: true" https://something.loca.lt/verification/status
+
+# macOS/Linux
+curl -H "Bypass-Tunnel-Reminder: true" https://something.loca.lt/verification/status
+```
+
+You must see JSON with `"can_send": true`. If the curl fails or returns 503, restart localtunnel, update `.env`, and curl again.
+
+Restart Expo with `--clear` whenever you change `EXPO_PUBLIC_API_URL`:
+
+```bash
+npx expo start --tunnel --clear --port 8081
+```
 
 ## 4. Start Expo and get a QR code (iPhone)
 
@@ -76,6 +95,7 @@ Restart Expo with `--clear` whenever you change this value.
 cd parrotyc
 npm start
 # same as: npx expo start --tunnel --port 8081
+# If you just changed EXPO_PUBLIC_API_URL, use --clear (command above) instead of npm start
 ```
 
 ### Warm the iOS bundle **before** scanning (required for first try)
@@ -158,9 +178,9 @@ open http://127.0.0.1:8000/docs
 | Symptom | Fix |
 |---------|-----|
 | Opens on laptop / browser | Expected — iPhone-only gate. Use Expo Go on iPhone |
+| “No connection to the verification server” | API tunnel dead or wrong `EXPO_PUBLIC_API_URL`. Restart localtunnel, curl `/verification/status` with `Bypass-Tunnel-Reminder: true`, update `.env`, restart Expo with `--clear` |
 | “Could not connect to development server” on first scan | Warm the iOS bundle with the curl in §4 before scanning; force-quit Expo Go and retry |
-| Expo “check your internet” / won’t load | Use `--tunnel`, not LAN; scan `exp://…exp.direct:80` on iPhone |
-| Verification “No connection” / **503** | API tunnel died — restart localtunnel and update `EXPO_PUBLIC_API_URL`, then `expo start --clear` |
+| Verification “No connection” / **503** | Same as above — localtunnel expired; get a new URL and `--clear` Expo |
 | “Couldn’t deliver code over iMessage” | Text Linq number first (sandbox); confirm `can_send: true` |
 | OTP works, no Polly reply | Missing webhook and/or `GEMINI_API_KEY`; confirm webhook tunnel is up |
 | Ngrok `Cannot read properties of undefined (reading 'body')` | Ensure `@expo/ngrok` is installed locally; retry `expo start --tunnel` |
