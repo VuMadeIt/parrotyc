@@ -144,10 +144,12 @@ If Expo Go still can’t connect: force-quit Expo Go, re-run the warm-up curl, t
 
 ## 5. Test phone verification
 
-1. On the phone, **iMessage `+` your Linq from-number first** (Linq sandbox requires inbound before outbound OTP).
-2. In the app: enter your number → wait for the 6-digit code over iMessage → verify.
+Use **your own iPhone number** (whatever device has Expo Go + iMessage). Do not reuse someone else’s number.
 
-If you see “Sandbox requires you to iMessage … first”, send that first text and retry.
+1. From that iPhone, open **Messages** and text the Linq line in your backend `.env` (`LINQ_FROM_NUMBER`) once — any short message is fine. Linq sandbox blocks outbound OTP until that inbound exists.
+2. In the app: enter **that same** phone number → wait for the 6-digit code over iMessage → verify.
+
+If you see “Sandbox requires you to iMessage … first”, send that first text from the number you’re verifying, then retry.
 
 ## 6. Test Polly chatbot
 
@@ -167,7 +169,7 @@ curl https://RANDOM.trycloudflare.com/health   # must be 200
 
 3. `GEMINI_API_KEY` must be set.
 
-4. Text the Linq number in **Messages**.
+4. From **your** iPhone, text `LINQ_FROM_NUMBER` in Messages to chat with Polly.
 
 If you get **no reply**, the webhook URL is almost always stale/dead. Re-check `curl …/health` on the tunnel and update the Linq subscription `target_url`.
 
