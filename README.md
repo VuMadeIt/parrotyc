@@ -153,9 +153,23 @@ If you see “Sandbox requires you to iMessage … first”, send that first tex
 
 Chat is **not** an in-app thread. After verify (or anytime):
 
-1. Text the same Linq number in **Messages**.
-2. Backend must have a Linq webhook for `message.received` pointing at a **public** backend URL (see backend README). Cloudflare quick tunnel is recommended for webhooks.
-3. `GEMINI_API_KEY` must be set or replies will say the key is missing.
+1. Start a **Cloudflare** tunnel to the backend and keep it open (localtunnel is for the Expo app only — Linq webhooks need Cloudflare):
+
+```bash
+npx --yes cloudflared tunnel --url http://127.0.0.1:8000
+# → https://RANDOM.trycloudflare.com
+curl https://RANDOM.trycloudflare.com/health   # must be 200
+```
+
+2. Point Linq `message.received` at  
+   `https://RANDOM.trycloudflare.com/webhook/linq?version=2026-02-03`  
+   (create or **update** the subscription whenever cloudflared gives a new hostname — see backend README).
+
+3. `GEMINI_API_KEY` must be set.
+
+4. Text the Linq number in **Messages**.
+
+If you get **no reply**, the webhook URL is almost always stale/dead. Re-check `curl …/health` on the tunnel and update the Linq subscription `target_url`.
 
 ## Useful scripts / checks
 
@@ -179,6 +193,7 @@ open http://127.0.0.1:8000/docs
 |---------|-----|
 | Opens on laptop / browser | Expected — iPhone-only gate. Use Expo Go on iPhone |
 | “No connection to the verification server” | API tunnel dead or wrong `EXPO_PUBLIC_API_URL`. Restart localtunnel, curl `/verification/status` with `Bypass-Tunnel-Reminder: true`, update `.env`, restart Expo with `--clear` |
+| Text Linq number, **no Polly reply** | Cloudflare webhook tunnel dead or Linq `target_url` still points at an old hostname. Restart cloudflared, `curl …/health`, update webhook subscription |
 | “Could not connect to development server” on first scan | Warm the iOS bundle with the curl in §4 before scanning; force-quit Expo Go and retry |
 | Verification “No connection” / **503** | Same as above — localtunnel expired; get a new URL and `--clear` Expo |
 | “Couldn’t deliver code over iMessage” | Text Linq number first (sandbox); confirm `can_send: true` |
