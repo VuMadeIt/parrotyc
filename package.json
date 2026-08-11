@@ -3,11 +3,11 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "start": "expo start",
+    "start": "expo start --tunnel --port 8081",
     "reset-project": "node ./scripts/reset-project.js",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web",
+    "ios": "expo start --tunnel --port 8081 --ios",
+    "web": "node -e \"console.error('Parrot is iPhone / Expo Go only — do not use web. Run: npm start'); process.exit(1)\"",
+    "android": "node -e \"console.error('Parrot is iPhone / Expo Go only. Run: npm start and scan the QR in Expo Go.'); process.exit(1)\"",
     "lint": "expo lint"
   },
   "dependencies": {
