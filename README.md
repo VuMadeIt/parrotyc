@@ -78,23 +78,39 @@ npm start
 # same as: npx expo start --tunnel --port 8081
 ```
 
+### Warm the iOS bundle **before** scanning (required for first try)
+
+The first iOS bundle can take 1–2 minutes. If you scan Expo Go too early, you’ll get
+**“Could not connect to development server”** even though the tunnel is fine.
+
+After the terminal says **Tunnel ready**, run this and wait until it finishes (HTTP 200):
+
+```bash
+# Windows
+curl "http://127.0.0.1:8081/node_modules/expo-router/entry.bundle?platform=ios&dev=true&hot=false&lazy=true&transform.engine=hermes&transform.bytecode=1&transform.routerRoot=app&transform.reactCompiler=true&unstable_transformProfile=hermes-stable" -o NUL
+
+# macOS/Linux
+curl -o /dev/null "http://127.0.0.1:8081/node_modules/expo-router/entry.bundle?platform=ios&dev=true&hot=false&lazy=true&transform.engine=hermes&transform.bytecode=1&transform.routerRoot=app&transform.reactCompiler=true&unstable_transformProfile=hermes-stable"
+```
+
+Only after that curl completes, get the Expo URL / QR.
+
 ### QR / URL — scan in Expo Go on iPhone only
 
-1. Wait until the terminal says **Tunnel ready**.
-2. Read the public host from ngrok:
+1. Read the public host from ngrok:
 
 ```bash
 curl http://127.0.0.1:4040/api/tunnels
 # look for https://….exp.direct
 ```
 
-3. On your **iPhone**, open Expo Go and enter / scan:
+2. On your **iPhone**, open Expo Go and enter / scan:
 
 ```text
 exp://YOUR-SUBDOMAIN.exp.direct:80
 ```
 
-Use **port 80** in the `exp://` URL (not 8081).
+Use **port 80** in the `exp://` URL (not 8081). Use **tunnel mode only** — don’t rely on same Wi‑Fi / LAN.
 
 Optional: write a PNG QR:
 
@@ -103,6 +119,8 @@ npx --yes qrcode "exp://YOUR-SUBDOMAIN.exp.direct:80" -o expo-qr.png
 ```
 
 Scan that image with Expo Go on iPhone. **Do not** use the laptop browser, web preview, or Cloudflare `trycloudflare.com` URLs as the Expo entry point.
+
+If Expo Go still can’t connect: force-quit Expo Go, re-run the warm-up curl, then scan again.
 
 ## 5. Test phone verification
 
@@ -140,6 +158,7 @@ open http://127.0.0.1:8000/docs
 | Symptom | Fix |
 |---------|-----|
 | Opens on laptop / browser | Expected — iPhone-only gate. Use Expo Go on iPhone |
+| “Could not connect to development server” on first scan | Warm the iOS bundle with the curl in §4 before scanning; force-quit Expo Go and retry |
 | Expo “check your internet” / won’t load | Use `--tunnel`, not LAN; scan `exp://…exp.direct:80` on iPhone |
 | Verification “No connection” / **503** | API tunnel died — restart localtunnel and update `EXPO_PUBLIC_API_URL`, then `expo start --clear` |
 | “Couldn’t deliver code over iMessage” | Text Linq number first (sandbox); confirm `can_send: true` |
