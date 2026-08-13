@@ -224,7 +224,7 @@ export default function VerifyPhoneNumberScreen() {
     if (!verified) return;
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     Keyboard.dismiss();
-    router.dismissAll();
+    router.push('/parrot/text-polly');
   };
 
   return (

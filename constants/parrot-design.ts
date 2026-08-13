@@ -30,6 +30,8 @@ export const ParrotColors = {
   /** Selected state for option cards (language / proficiency). */
   selectedBackground: '#EAF4FE',
   cardBackground: '#FFFFFF',
+  /** Figma 37:76 sample-message card fill. */
+  sampleCard: '#F6F7F9',
   cardShadow: '#0B1B2B',
   /** "Coming soon" copy on locked options. */
   mutedLabel: '#A9AFB8',
